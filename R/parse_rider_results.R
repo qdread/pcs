@@ -12,41 +12,31 @@ parse_rider_results <- function(rider_id, rider_html, seasons = NULL)
   rider_season_output <- NULL
   
   # Rider name
-  rider_name<-
+  rider_name <-
     rider_html %>%
     rvest::html_nodes('h1') %>%
-    rvest::html_text() %>%
-    stringr::str_split(.,"»")
+    rvest::html_text() 
   
   rider <- stringr::str_squish(rider_name[[1]][1])
-  
+
   # Rider team
-  team <- rider_html %>% 
-    rvest::html_nodes(xpath = "/html/body/div[1]/div[1]/div[2]/div[1]/span[4]") %>% 
+  team <- rider_html %>%
+    rvest::html_nodes('h2') %>%
+    rvest::html_text() 
+  
+  if (length(team) == 0) team <- "none"
+  
+  # Extract seasons raced by rider
+  jumbled <- rider_html %>%
+    rvest::html_nodes(xpath = '/html/body/div[1]/div[1]/div[8]') %>%
     rvest::html_text()
   
-  if (length(team) == 0) team <- "Parsing failure"
+  numbers_extract <- gsub('.*.Key statistics', '', jumbled) %>% 
+    stringr::str_extract_all(pattern ="[0-9]+") %>%
+    `[[`(1) %>%
+    as.numeric()
+  seasonResults <- rev(numbers_extract[numbers_extract > 1900 & numbers_extract < 2050])
   
-  # Extract number of seasons raced by rider
-  seasonResults <- 
-    rider_html %>% 
-    rvest::html_nodes(xpath = "/html/body/div[1]/div[1]/div[7]/div[1]/div[4]/ul") %>% 
-    rvest::html_nodes(".seasonResults") %>%
-    rvest::html_text() %>%
-    unique()
-  
-  # if the extract is length 0, then it's probably looking in the wrong place
-  if(length(seasonResults) == 0)
-  {
-    seasonResults <- rider_html %>% 
-      rvest::html_nodes(xpath = "/html/body/div[1]/div[1]/div[7]/div[1]/div[3]/ul") %>% 
-      rvest::html_nodes(".seasonResults") %>%
-      rvest::html_text() %>%
-      unique()
-    
-    
-  } 
-  seasonResults <- seasonResults[!stringr::str_detect(seasonResults, "/")]
   stopifnot(length(seasonResults) != 0)
   
   for (j in 1:length(seasonResults))
@@ -70,6 +60,7 @@ parse_rider_results <- function(rider_id, rider_html, seasons = NULL)
                     e2 = 9) %>%
       dplyr::select(-e1,-e2)
     
+    names(rider_season_table) <- gsub('[[:punct:]]', '', names(rider_season_table))
     
     gt <- rider_season_table %>%
       dplyr::filter(is.na(Distance) | stringr::str_detect(Race, "Stage")) %>% 

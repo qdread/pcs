@@ -8,7 +8,7 @@
 parse_rider_profile <- function(rider_html)
 {
   # Rider name
-  rider_name<-
+  rider_name <-
     rider_html %>%
     rvest::html_nodes('h1') %>%
     rvest::html_text() 

@@ -32,11 +32,12 @@
 #'     \item current_team: Current team.
 #'     \item weight: Weight in kg.
 #'     \item height: Height in m.
-#'     \item one_day_races: Career points awarded for success in one day races.
-#'     \item gc: Career points awarded for success in grand tours.
-#'     \item tt: Career points awarded for success in time trials.
-#'     \item sprint: Career points awarded for success in sprint-focused races.
-#'     \item climber: Career points awarded for success in climbing-focused races.
+#'     \item Onedayraces: Career points awarded for success in one day races.
+#'     \item GC: Career points awarded for success in grand tours.
+#'     \item TT: Career points awarded for success in time trials.
+#'     \item Sprint: Career points awarded for success in sprint-focused races (lowest profile score).
+#'     \item Climber: Career points awarded for success in climbing-focused races (highest profile score).
+#'     \item Hills: Career points awarded for success in hilly races (intermediate profile score).
 #' }
 #' @export query_pcs
 #' 
@@ -69,7 +70,7 @@ query_pcs <- function(rider_names, seasons = NULL)
       }
     
     assign('rider_profiles', rbind(profile_out, rider_profiles))
-    
+   
     results_out <- pcs:::parse_rider_results(rider_id = rider_url, rider_html, seasons)
     assign('rider_results', rbind(results_out, rider_results))
   }
