@@ -31,4 +31,5 @@ Rider results are returned as a list of two data frames: `profiles`, containing 
 | DSQ         | 994  |
 | NR          | 993  |
 
-The `profiles` data frame contains columns for total UCI points in the categories of `one_day_races`, `gc`, `tt`, and `sprint`. Caution is warranted when analyzing rider biographical information from PCS. Never forget that these folks are more than just numbers!!
+The `profiles` data frame contains columns for total PCS points in the categories of `Onedayraces`, `GC`, `TT`, `Sprint`, `Climber`, and `Hills`. Caution is warranted when analyzing rider biographical information from PCS.
+It is not legal to use data scraped from PCS for commercial purposes. Also, never forget that these folks are more than just numbers!!
