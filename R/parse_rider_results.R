@@ -58,7 +58,8 @@ parse_rider_results <- function(rider_id, rider_html, seasons = NULL)
       dplyr::rename(gc_result_on_stage = 3,
                     e1 = 4,
                     e2 = 9) %>%
-      dplyr::select(-e1,-e2)
+      dplyr::select(-e1,-e2) %>%
+      dplyr::mutate(Distance = suppressWarnings(as.numeric(Distance)))
     
     names(rider_season_table) <- gsub('[[:punct:]]', '', names(rider_season_table))
     
@@ -130,7 +131,7 @@ parse_rider_results <- function(rider_id, rider_html, seasons = NULL)
   rider_records <- tibble::tibble(rider_season_output) %>%
     dplyr::mutate(Result = as.numeric(stringr::str_replace_all(Result, c("DNF" = "999", "DNS" = "998",
                                                          "OTL" = "997", "DF" = "996",
-                                                         "NQ" = "995", "DSQ" = "994"))))
+                                                         "NQ" = "995", "DSQ" = "994", "NR" = "993"))))
   names(rider_records) <- stringr::str_to_lower(names(rider_records))
   
   return(rider_records)

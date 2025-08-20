@@ -29,5 +29,6 @@ Rider results are returned as a list of two data frames: `profiles`, containing 
 | DF          | 996  |
 | NQ          | 995  |
 | DSQ         | 994  |
+| NR          | 993  |
 
 The `profiles` data frame contains columns for total UCI points in the categories of `one_day_races`, `gc`, `tt`, and `sprint`. Caution is warranted when analyzing rider biographical information from PCS. Never forget that these folks are more than just numbers!!
