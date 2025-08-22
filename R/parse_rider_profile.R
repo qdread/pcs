@@ -8,77 +8,64 @@
 parse_rider_profile <- function(rider_html)
 {
   # Rider name
-  rider_name<-
+  rider_name <-
     rider_html %>%
     rvest::html_nodes('h1') %>%
-    rvest::html_text() %>%
-    stringr::str_split(.,"»")
+    rvest::html_text() 
   
   rider <- stringr::str_squish(rider_name[[1]][1])
   
-  # Rider team
-  team <- rider_html %>% 
-    rvest::html_nodes(xpath = "/html/body/div[1]/div[1]/div[2]/div[1]/span[4]") %>% 
-    rvest::html_text()
+  # Rider team. Currently active riders have a team name but retired riders do not
+  team <- rider_html %>%
+    rvest::html_nodes('h2') %>%
+    rvest::html_text() 
+  
+  if (length(team) == 0) team <- 'none'
   
   jumbled <- rider_html %>%
-    rvest::html_nodes(".rdr-info-cont") %>%
+    rvest::html_nodes(xpath = '/html/body/div[1]/div[1]/div[8]') %>%
     rvest::html_text()
   
   if (stringr::str_detect(jumbled, "Date of birth:")){
-    dob <- jumbled %>%
-      gsub('^Date of birth: (\\w+ \\w+ \\w+) .+$', '\\1', .) %>%
+    dob <- regmatches(jumbled, regexec("Date of birth:\\s*(.*?)\\s*\n", jumbled))[[1]][2] %>%
       stringr::str_remove("th|nd|rd|st") %>%
+      stringr::str_remove("\\([0-9]+\\)") %>%
       stringr::str_squish() %>%
-      readr::parse_date(., format = "%d %B %Y")
+      readr::parse_date(., format = "%d%B%Y")
   } else {
     dob <- NA
   }
   
   if (stringr::str_detect(jumbled, "Nationality")){
-    nationality <- jumbled %>%
-      stringr::str_extract("(?<=Nationality: )(.*)Weight") %>%
-      stringr::str_remove("Weight$")
+    nationality <- regmatches(jumbled, regexec("Nationality:\\s*(.*?)\\s*\n", jumbled))[[1]][2]
   } else {
     nationality <- NA
   }
   
   if (stringr::str_detect(jumbled, "Weight")){
-    weight <- jumbled %>%
-      stringr::str_extract("(?<=Weight: ).*(?= kg)")
+    weight <- regmatches(jumbled, regexec("Weight:\\s*(.*?)\\s*kg", jumbled))[[1]][2]
   } else {
     weight <- NA
   }
   
   if (stringr::str_detect(jumbled, "Height")){
-    height <- jumbled %>%
-      stringr::str_extract("(?<=Height: ).*(?= m)")
+    height <- regmatches(jumbled, regexec("Height:\\s*(.*?)\\s*m", jumbled))[[1]][2]
   } else {
     height <- NA
   }
   
   if (stringr::str_detect(jumbled, "Place of birth:")){
-    pob <- jumbled %>%
-      stringr::str_extract("(?<=Place of birth: ).*(?=LIVE)|(?=Points)|(?=One)") %>%
-      stringr::str_squish()
+    pob <- regmatches(jumbled, regexec("Place of birth:\\s*(.*?)\\s*\n", jumbled))[[1]][2]
   } else {
     pob <- NA
   }
   
-  one_day_races <- jumbled %>%
-    stringr::str_extract("(?<=Points per specialty).*(?=One day races)")
-  
-  gc <- jumbled %>%
-    stringr::str_extract("(?<=One day races\\n).*(?=GC)")
-  
-  tt <- jumbled %>%
-    stringr::str_extract("(?<=GC\\n).*(?=Time trial)")
-  
-  sprint <- jumbled %>%
-    stringr::str_extract("(?<=Time trial\\n).*(?=Sprint)")
-  
-  climber <- jumbled %>%
-    stringr::str_extract("(?<=Sprint\\n).*(?=Climber)")
+  # Scores for six specialties are the first six numbers after the word Specialties
+  numbers_extract <- gsub('.*.Specialties', '', jumbled) %>% 
+    stringr::str_extract_all(pattern ="[0-9]+")
+  six_numbers <- numbers_extract[[1]][1:6] %>%
+    as.numeric() %>%
+    setNames(c('Onedayraces', 'GC', 'TT', 'Sprint', 'Climber', 'Hills')) 
   
   out <- tibble::tibble(rider = rider,
                 dob = dob,
@@ -87,11 +74,7 @@ parse_rider_profile <- function(rider_html)
                 current_team = team,
                 weight = as.numeric(weight),
                 height = as.numeric(height),
-                one_day_races = as.numeric(one_day_races),
-                gc = as.numeric(gc),
-                tt = as.numeric(tt),
-                sprint = as.numeric(sprint),
-                climber = as.numeric(climber))
+                tibble::as_tibble(t(six_numbers)))
   
   return(out)
 }

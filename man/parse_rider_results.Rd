@@ -7,7 +7,7 @@
 parse_rider_results(rider_id, rider_html, seasons = NULL)
 }
 \arguments{
-\item{rider_id}{Rider's profile ID}
+\item{rider_id}{Rider's profile URL}
 
 \item{rider_html}{HTML code of rider's profile page}
 

@@ -4,12 +4,14 @@
 \alias{query_pcs}
 \title{Main PCS scraping function}
 \usage{
-query_pcs(rider_names, seasons = NULL)
+query_pcs(rider_names, seasons = NULL, profiles_only = FALSE)
 }
 \arguments{
 \item{rider_names}{Character vector containing one or more rider names.}
 
 \item{seasons}{Integer vector of years ("seasons") to collect results from. Will return all years if \code{NULL}.}
+
+\item{profiles_only}{Logical indicating whether to return only rider profiles and no race results. Default FALSE.}
 }
 \value{
 List of two data frames (\code{profiles} and \code{results}).
@@ -39,11 +41,12 @@ The \code{profiles} data frame contains the following:
     \item current_team: Current team.
     \item weight: Weight in kg.
     \item height: Height in m.
-    \item one_day_races: Career points awarded for success in one day races.
-    \item gc: Career points awarded for success in grand tours.
-    \item tt: Career points awarded for success in time trials.
-    \item sprint: Career points awarded for success in sprint-focused races.
-    \item climber: Career points awarded for success in climbing-focused races.
+    \item Onedayraces: Career points awarded for success in one day races.
+    \item GC: Career points awarded for success in grand tours.
+    \item TT: Career points awarded for success in time trials.
+    \item Sprint: Career points awarded for success in sprint-focused races (lowest profile score).
+    \item Climber: Career points awarded for success in climbing-focused races (highest profile score).
+    \item Hills: Career points awarded for success in hilly races (intermediate profile score).
 }
 }
 \description{
